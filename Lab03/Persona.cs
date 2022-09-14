@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Lab03
 {
@@ -24,8 +26,38 @@ namespace Lab03
         {
             if (conn.State == ConnectionState.Open)
             {
-                String sql = "SELECT * FROM tbl_usuario";
+                String sql = "SELECT * FROM Person";
                 SqlCommand cmd = new SqlCommand(sql, conn);
+                SqlDataReader reader = cmd.ExecuteReader();
+                DataTable dt = new DataTable();
+                dt.Load(reader);
+                dgvListado.DataSource = dt;
+                dgvListado.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("La conexion esta cerrada");
+            }
+        }
+
+        private void btnBuscar_Click(object sender, EventArgs e)
+        {
+            if(conn.State == ConnectionState.Open)
+            {
+                String FirstName = txtNombre.Text;
+
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandText = "BuscarPersonaNombre";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Connection = conn;
+
+                SqlParameter param = new SqlParameter();
+                param.ParameterName = "@FirstName";
+                param.SqlDbType = SqlDbType.NVarChar;
+                param.Value = FirstName;
+
+                cmd.Parameters.Add(param);
+
                 SqlDataReader reader = cmd.ExecuteReader();
                 DataTable dt = new DataTable();
                 dt.Load(reader);
